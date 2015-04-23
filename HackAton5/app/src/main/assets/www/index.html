@@ -40,9 +40,9 @@
                                     var create=false;
 
                                     //Create methode
-                                    create = cobalt.storage.getItem('create',"json").value;
+                                    create = cobalt.storage.getItem('create',"json");
 
-                                    if(create && create==true) {
+                                    if(create && create.value) {
                                         var name = cobalt.storage.getItem('newEventName',"json").value;
                                         var date = cobalt.storage.getItem('newEventDate',"json").value;
                                         var context = {title: name, date: date, place: "", notes: undefined};
@@ -51,12 +51,15 @@
                                         var create = { value: false};
                                         cobalt.storage.setItem('create',create,"json");
                                     }
-
-                                    app.events.init();
+									
+									app.events.reset();
+                                    app.events.refresh();
                               }
                           }
                 });
+				
                 app.initPage('Hackaton');
+				app.events.init();
               })
 
         </script>

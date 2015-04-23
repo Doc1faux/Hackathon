@@ -29,14 +29,11 @@
                                                  cobalt.sendCallback(callback,{value : true});
                                                  }
                                              }})
-                              },
-
-                              "onPageShown":function(data,callback) {
-                                app.events.init();
                               }
                           }
                 });
                 app.initPage('Hackaton');
+				app.events.init();
               })
 
         </script>

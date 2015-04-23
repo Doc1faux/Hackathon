@@ -701,38 +701,41 @@ public abstract class CobaltFragment extends Fragment implements IScrollListener
     protected void onReady() { }
 
 	private boolean handleCallback(String callback, JSONObject data) {
-        switch(callback) {
-            case Cobalt.JSCallbackOnBackButtonPressed:
-                try {
-                    onBackPressed(data.getBoolean(Cobalt.kJSValue));
-                    return true;
-                }
-                catch (JSONException exception) {
-                    if (Cobalt.DEBUG) Log.e(Cobalt.TAG, TAG + " - handleCallback: JSONException");
-                    exception.printStackTrace();
-                    return false;
-                }
-            case Cobalt.JSCallbackPullToRefreshDidRefresh:
-                mHandler.post(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        onPullToRefreshDidRefresh();
-                    }
-                });
+        if (callback.equals(Cobalt.JSCallbackOnBackButtonPressed)) {
+            try {
+                onBackPressed(data.getBoolean(Cobalt.kJSValue));
                 return true;
-            case Cobalt.JSCallbackInfiniteScrollDidRefresh:
-                mHandler.post(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        onInfiniteScrollDidRefresh();
-                    }
-                });
-                return true;
-            default:
-                return onUnhandledCallback(callback, data);
+            }
+            catch (JSONException exception) {
+                if (Cobalt.DEBUG) Log.e(Cobalt.TAG, TAG + " - handleCallback: JSONException");
+                exception.printStackTrace();
+                return false;
+            }
         }
+        else if (callback.equals(Cobalt.JSCallbackPullToRefreshDidRefresh)) {
+            mHandler.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    onPullToRefreshDidRefresh();
+                }
+            });
+
+            return true;
+        }
+        else if (callback.equals(Cobalt.JSCallbackInfiniteScrollDidRefresh)) {
+            mHandler.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    onInfiniteScrollDidRefresh();
+                }
+            });
+
+            return true;
+        }
+
+        return onUnhandledCallback(callback, data);
 	}
 	
 	protected abstract boolean onUnhandledCallback(String callback, JSONObject data);
@@ -746,50 +749,47 @@ public abstract class CobaltFragment extends Fragment implements IScrollListener
 	private boolean handleUi(String control, JSONObject data, String callback) {
 		try {
 			// PICKER
-            switch (control) {
-                case Cobalt.JSControlPicker:
-                    String type = data.getString(Cobalt.kJSType);
+            if (control.equals(Cobalt.JSControlPicker)) {
+                String type = data.getString(Cobalt.kJSType);
 
-                    // DATE
-                    if (type.equals(Cobalt.JSPickerDate)) {
-                        JSONObject date = data.optJSONObject(Cobalt.kJSDate);
+                // DATE
+                if (type.equals(Cobalt.JSPickerDate)) {
+                    JSONObject date = data.optJSONObject(Cobalt.kJSDate);
 
-                        Calendar calendar = Calendar.getInstance();
-                        int year = calendar.get(Calendar.YEAR);
-                        int month = calendar.get(Calendar.MONTH);
-                        int day = calendar.get(Calendar.DAY_OF_MONTH);
+                    Calendar calendar = Calendar.getInstance();
+                    int year = calendar.get(Calendar.YEAR);
+                    int month = calendar.get(Calendar.MONTH);
+                    int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-                        if (date != null
+                    if (date != null
                             && date.has(Cobalt.kJSYear)
                             && date.has(Cobalt.kJSMonth)
                             && date.has(Cobalt.kJSDay)) {
-                            year = date.getInt(Cobalt.kJSYear);
-                            month = date.getInt(Cobalt.kJSMonth) - 1;
-                            day = date.getInt(Cobalt.kJSDay);
-                        }
-
-                        JSONObject texts = data.optJSONObject(Cobalt.kJSTexts);
-                        String title = texts.optString(Cobalt.kJSTitle, null);
-                        //String delete = texts.optString(Cobalt.kJSDelete, null);
-                        String clear = texts.optString(Cobalt.kJSClear, null);
-                        String cancel = texts.optString(Cobalt.kJSCancel, null);
-                        String validate = texts.optString(Cobalt.kJSValidate, null);
-
-                        showDatePickerDialog(year, month, day, title, clear, cancel, validate, callback);
-
-                        return true;
+                        year = date.getInt(Cobalt.kJSYear);
+                        month = date.getInt(Cobalt.kJSMonth) - 1;
+                        day = date.getInt(Cobalt.kJSDay);
                     }
 
-                    break;
-                case Cobalt.JSControlAlert:
-                    showAlertDialog(data, callback);
+                    JSONObject texts = data.optJSONObject(Cobalt.kJSTexts);
+                    String title = texts.optString(Cobalt.kJSTitle, null);
+                    //String delete = texts.optString(Cobalt.kJSDelete, null);
+                    String clear = texts.optString(Cobalt.kJSClear, null);
+                    String cancel = texts.optString(Cobalt.kJSCancel, null);
+                    String validate = texts.optString(Cobalt.kJSValidate, null);
+
+                    showDatePickerDialog(year, month, day, title, clear, cancel, validate, callback);
+
                     return true;
-                case Cobalt.JSControlToast:
-                    String message = data.getString(Cobalt.kJSMessage);
-                    Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
-                    return true;
-                default:
-                    break;
+                }
+            }
+            else if (control.equals(Cobalt.JSControlAlert)) {
+                showAlertDialog(data, callback);
+                return true;
+            }
+            else if (control.equals(Cobalt.JSControlToast)) {
+                String message = data.getString(Cobalt.kJSMessage);
+                Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+                return true;
             }
 		} 
 		catch (JSONException exception) {

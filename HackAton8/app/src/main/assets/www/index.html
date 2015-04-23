@@ -22,52 +22,56 @@
                               debugInDiv : app.debugInDiv,
                               
                               events:{
-                              "onBackButtonPressed":function(data, callback){
-                                    cobalt.alert('Quit ?',"Are you sure you want to quit the app ?", ["Yeah","No"],{ callback:function(params){
-                                                 if (params.index===0){
-                                                 //allow quitting
-                                                 cobalt.sendCallback(callback,{value : true});
-                                                 }
-                                             }})
-                              },
+                                  "onBackButtonPressed":function(data, callback){
+                                        cobalt.alert('Quit ?',"Are you sure you want to quit the app ?", ["Yeah","No"],{ callback:function(params){
+                                                     if (params.index===0){
+                                                     //allow quitting
+                                                     cobalt.sendCallback(callback,{value : true});
+                                                     }
+                                                 }})
+                                  },
 
-                              "pullToRefresh":function(data, callback){
-                                    app.events.reset();
-                                    app.events.refresh();
-                                    cobalt.sendCallback(callback);
-                              },
+                                  "pullToRefresh":function(data, callback){
+                                        app.events.reset();
+                                        app.events.refresh();
+                                        cobalt.sendCallback(callback);
+                                  },
 
-                              "infiniteScroll":function(data, callback){
-                                    app.events.refresh();
-                                    cobalt.sendCallback(callback);
-                              },
+                                  "infiniteScroll":function(data, callback){
+                                        cobalt.log("infiniteScroll");
+                                        app.events.refresh();
+                                        cobalt.sendCallback(callback);
+                                  },
 
-                              "createEvent":function(data,callback) {
-                                    cobalt.navigate("push","addEvent.html","create");
-                              },
+                                  "createEvent":function(data,callback) {
+                                        cobalt.navigate("push","addEvent.html","create");
+                                  },
 
-                              "onPageShown":function(data,callback) {
+                                  "onPageShown":function(data,callback) {
 
-                                    var create=false;
+                                        var create=false;
 
-                                    //Create methode
-                                    create = cobalt.storage.getItem('create',"json").value;
+                                        //Create methode
+                                        create = cobalt.storage.getItem('create',"json");
 
-                                    if(create && create==true) {
-                                        var name = cobalt.storage.getItem('newEventName',"json").value;
-                                        var date = cobalt.storage.getItem('newEventDate',"json").value;
-                                        var context = {title: name, date: date, place: "", notes: undefined};
-                                        app.events.addEvent(context);
-                                        
-                                        var create = { value: false};
-                                        cobalt.storage.setItem('create',create,"json");
-                                    }
+                                        if(create && create.value) {
+                                            var name = cobalt.storage.getItem('newEventName',"json").value;
+                                            var date = cobalt.storage.getItem('newEventDate',"json").value;
+                                            var context = {title: name, date: date, place: "", notes: undefined};
+                                            app.events.addEvent(context);
 
-                                    app.events.init();
+                                            var create = { value: false};
+                                            cobalt.storage.setItem('create',create,"json");
+                                        }
+
+                                        app.events.reset();
+                                        app.events.refresh();
+                                  }
                               }
-                          }
                 });
+
                 app.initPage('Hackaton');
+                app.events.init();
               })
 
         </script>
